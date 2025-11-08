@@ -1,4 +1,3 @@
-import React from 'react';
 import OfferCard from '../../components/offer-card/offer-card';
 
 type MainPageProps = {

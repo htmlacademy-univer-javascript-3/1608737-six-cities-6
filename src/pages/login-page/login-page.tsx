@@ -1,5 +1,3 @@
-import React from 'react';
-
 function LoginPage(): JSX.Element {
   return (
     <div className="page page--gray page--login">
@@ -45,6 +43,4 @@ function LoginPage(): JSX.Element {
 }
 
 export default LoginPage;
-
-
 

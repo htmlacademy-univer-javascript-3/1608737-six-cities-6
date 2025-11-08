@@ -1,5 +1,3 @@
-import React from 'react';
-
 function FavoritesPage(): JSX.Element {
   return (
     <div className="page">
@@ -76,6 +74,4 @@ function FavoritesPage(): JSX.Element {
 }
 
 export default FavoritesPage;
-
-
 

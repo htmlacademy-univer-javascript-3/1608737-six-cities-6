@@ -193,5 +193,3 @@ function OfferPage(): JSX.Element {
 
 export default OfferPage;
 
-
-

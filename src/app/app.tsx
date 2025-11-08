@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainPage from '../pages/main-page/main-page';
 import LoginPage from '../pages/login-page/login-page';
@@ -33,6 +32,4 @@ function App({ offersCount }: AppProps): JSX.Element {
 }
 
 export default App;
-
-
 
