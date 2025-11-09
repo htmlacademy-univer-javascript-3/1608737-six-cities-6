@@ -1,5 +1,3 @@
-import React from 'react';
-
 function FavoritesEmptyPage(): JSX.Element {
   return (
     <div className="page page--favorites-empty">
@@ -53,6 +51,4 @@ function FavoritesEmptyPage(): JSX.Element {
 }
 
 export default FavoritesEmptyPage;
-
-
 
