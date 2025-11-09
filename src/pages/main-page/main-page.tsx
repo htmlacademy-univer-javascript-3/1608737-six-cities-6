@@ -1,62 +1,26 @@
-import OfferCard from '../../components/offer-card/offer-card';
+import { useState } from 'react';
+import { Offer } from '../../mocks/offers';
+import OffersList from '../../components/offers-list/offers-list';
 
 type MainPageProps = {
   offersCount: number;
+  offers: Offer[];
 };
 
-function MainPage({ offersCount }: MainPageProps): JSX.Element {
-  const offers = [
-    {
-      id: 1,
-      isPremium: true,
-      imageSrc: 'img/apartment-01.jpg',
-      price: 120,
-      isBookmarked: false,
-      ratingPercent: 80,
-      title: 'Beautiful & luxurious apartment at great location',
-      type: 'Apartment',
-    },
-    {
-      id: 2,
-      isPremium: false,
-      imageSrc: 'img/room.jpg',
-      price: 80,
-      isBookmarked: true,
-      ratingPercent: 80,
-      title: 'Wood and stone place',
-      type: 'Room',
-    },
-    {
-      id: 3,
-      isPremium: false,
-      imageSrc: 'img/apartment-02.jpg',
-      price: 132,
-      isBookmarked: false,
-      ratingPercent: 80,
-      title: 'Canal View Prinsengracht',
-      type: 'Apartment',
-    },
-    {
-      id: 4,
-      isPremium: true,
-      imageSrc: 'img/apartment-03.jpg',
-      price: 180,
-      isBookmarked: false,
-      ratingPercent: 100,
-      title: 'Nice, cozy, warm big bed apartment',
-      type: 'Apartment',
-    },
-    {
-      id: 5,
-      isPremium: false,
-      imageSrc: 'img/room.jpg',
-      price: 80,
-      isBookmarked: true,
-      ratingPercent: 80,
-      title: 'Wood and stone place',
-      type: 'Room',
-    },
-  ];
+function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
+  // State for active offer card (will be used for map markers later)
+  const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
+
+  // Keep activeOfferId for future map implementation
+  void activeOfferId;
+
+  const handleCardHover = (id: string) => {
+    setActiveOfferId(id);
+  };
+
+  const handleCardLeave = () => {
+    setActiveOfferId(null);
+  };
 
   return (
     <div className="page page--gray page--main">
@@ -147,20 +111,11 @@ function MainPage({ offersCount }: MainPageProps): JSX.Element {
                   <li className="places__option" tabIndex={0}>Top rated first</li>
                 </ul>
               </form>
-              <div className="cities__places-list places__list tabs__content">
-                {offers.map((offer) => (
-                  <OfferCard
-                    key={offer.id}
-                    isPremium={offer.isPremium}
-                    imageSrc={offer.imageSrc}
-                    price={offer.price}
-                    isBookmarked={offer.isBookmarked}
-                    ratingPercent={offer.ratingPercent}
-                    title={offer.title}
-                    type={offer.type}
-                  />
-                ))}
-              </div>
+              <OffersList
+                offers={offers}
+                onCardHover={handleCardHover}
+                onCardLeave={handleCardLeave}
+              />
             </section>
             <div className="cities__right-section">
               <section className="cities__map map"></section>
