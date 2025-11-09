@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Offer } from '../../mocks/offers';
 import OffersList from '../../components/offers-list/offers-list';
+import Map from '../../components/map/map';
 
 type MainPageProps = {
   offersCount: number;
@@ -8,11 +9,7 @@ type MainPageProps = {
 };
 
 function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
-  // State for active offer card (will be used for map markers later)
   const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
-
-  // Keep activeOfferId for future map implementation
-  void activeOfferId;
 
   const handleCardHover = (id: string) => {
     setActiveOfferId(id);
@@ -20,6 +17,15 @@ function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
 
   const handleCardLeave = () => {
     setActiveOfferId(null);
+  };
+
+  const city = offers.length > 0 ? offers[0].city : {
+    name: 'Amsterdam',
+    location: {
+      latitude: 52.37454,
+      longitude: 4.897976,
+      zoom: 13,
+    },
   };
 
   return (
@@ -118,7 +124,9 @@ function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
               />
             </section>
             <div className="cities__right-section">
-              <section className="cities__map map"></section>
+              <section className="cities__map map">
+                <Map offers={offers} city={city} activeOfferId={activeOfferId} />
+              </section>
             </div>
           </div>
         </div>
