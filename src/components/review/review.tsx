@@ -1,4 +1,5 @@
 import { Review as ReviewType } from '../../mocks/reviews';
+import { formatDate } from '../../utils/date';
 
 type ReviewProps = {
   review: ReviewType;
@@ -6,13 +7,6 @@ type ReviewProps = {
 
 function Review({ review }: ReviewProps): JSX.Element {
   const ratingPercent = Math.round(review.rating * 20);
-  
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const month = date.toLocaleString('en-US', { month: 'long' });
-    const year = date.getFullYear();
-    return `${month} ${year}`;
-  };
 
   return (
     <li className="reviews__item">

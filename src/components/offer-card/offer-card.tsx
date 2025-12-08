@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import classNames from 'classnames';
 import { Offer } from '../../mocks/offers';
 
 type OfferCardProps = {
@@ -27,13 +28,11 @@ function OfferCard({
           <span>Premium</span>
         </div>
       )}
-      <div className={`${
-        cardClassName === 'favorites__card' 
-          ? 'favorites__image-wrapper' 
-          : cardClassName === 'near-places__card'
-          ? 'near-places__image-wrapper'
-          : 'cities__image-wrapper'
-      } place-card__image-wrapper`}>
+      <div className={classNames('place-card__image-wrapper', {
+        'favorites__image-wrapper': cardClassName === 'favorites__card',
+        'near-places__image-wrapper': cardClassName === 'near-places__card',
+        'cities__image-wrapper': cardClassName === 'cities__card',
+      })}>
         <Link to={`/offer/${offer.id}`}>
           <img 
             className="place-card__image" 
