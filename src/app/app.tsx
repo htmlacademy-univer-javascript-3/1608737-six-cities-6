@@ -5,13 +5,8 @@ import FavoritesPage from '../pages/favorites-page/favorites-page';
 import OfferPage from '../pages/offer-page/offer-page';
 import NotFoundPage from '../pages/not-found-page/not-found-page';
 import PrivateRoute from '../components/private-route/private-route';
-import { Offer } from '../mocks/offers';
 
-type AppProps = {
-  offers: Offer[];
-};
-
-function App({ offers }: AppProps): JSX.Element {
+function App(): JSX.Element {
   const isAuthorized = false;
 
   return (
@@ -22,11 +17,11 @@ function App({ offers }: AppProps): JSX.Element {
         path="/favorites"
         element={
           <PrivateRoute isAuthorized={isAuthorized}>
-            <FavoritesPage offers={offers.filter((offer) => offer.isFavorite)} />
+            <FavoritesPage />
           </PrivateRoute>
         }
       />
-      <Route path="/offer/:id" element={<OfferPage offers={offers} />} />
+      <Route path="/offer/:id" element={<OfferPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

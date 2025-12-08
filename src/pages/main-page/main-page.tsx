@@ -6,18 +6,41 @@ import OffersList from '../../components/offers-list/offers-list';
 import Map from '../../components/map/map';
 import CitiesList from '../../components/cities-list/cities-list';
 import SortingOptions, { SortOption } from '../../components/sorting-options/sorting-options';
+import Spinner from '../../components/spinner/spinner';
 import { sortOffers } from '../../utils/sorting';
 
 function MainPage(): JSX.Element {
   const dispatch = useDispatch();
   const currentCity = useSelector((state: RootState) => state.city);
   const allOffers = useSelector((state: RootState) => state.offers);
+  const isLoading = useSelector((state: RootState) => state.isLoading);
   
   const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
   const [currentSort, setCurrentSort] = useState<SortOption>('Popular');
   
   const filteredOffers = allOffers.filter((offer) => offer.city.name === currentCity);
   const sortedOffers = sortOffers(filteredOffers, currentSort);
+  
+  if (isLoading) {
+    return (
+      <div className="page page--gray page--main">
+        <header className="header">
+          <div className="container">
+            <div className="header__wrapper">
+              <div className="header__left">
+                <a className="header__logo-link header__logo-link--active" href="/">
+                  <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="page__main page__main--index">
+          <Spinner />
+        </main>
+      </div>
+    );
+  }
 
   const handleCardHover = (id: string) => {
     setActiveOfferId(id);

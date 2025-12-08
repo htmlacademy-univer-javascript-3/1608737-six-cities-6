@@ -1,25 +1,61 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { Offer } from '../../mocks/offers';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../store';
+import { fetchOfferById } from '../../store/action';
 import ReviewForm from '../../components/review-form/review-form';
 import ReviewsList from '../../components/reviews-list/reviews-list';
 import Map from '../../components/map/map';
 import OffersList from '../../components/offers-list/offers-list';
+import Spinner from '../../components/spinner/spinner';
 import { reviews } from '../../mocks/reviews';
 
-type OfferPageProps = {
-  offers: Offer[];
-};
-
-function OfferPage({ offers }: OfferPageProps): JSX.Element {
+function OfferPage(): JSX.Element {
+  const dispatch = useDispatch<AppDispatch>();
+  const offers = useSelector((state: RootState) => state.offers);
+  const currentOffer = useSelector((state: RootState) => state.currentOffer);
+  const isLoading = useSelector((state: RootState) => state.isLoading);
+  const isCurrentOfferLoading = useSelector((state: RootState) => state.isCurrentOfferLoading);
   const { id } = useParams<{ id: string }>();
-  const offer = offers.find((o) => o.id === id);
+  
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchOfferById(id));
+    }
+  }, [id, dispatch]);
+  
+  if (isLoading || isCurrentOfferLoading) {
+    return (
+      <div className="page">
+        <header className="header">
+          <div className="container">
+            <div className="header__wrapper">
+              <div className="header__left">
+                <Link className="header__logo-link" to="/">
+                  <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="page__main page__main--offer">
+          <Spinner />
+        </main>
+      </div>
+    );
+  }
+  
+  const offer = currentOffer || offers.find((o) => o.id === id);
 
   if (!offer) {
     return <Navigate to="/" />;
   }
 
-  const ratingPercent = Math.round(offer.rating * 20);
-  const descriptionParagraphs = offer.description.split('. ').filter((p) => p.length > 0);
+  const ratingPercent = Math.round((offer.rating || 0) * 20);
+  const descriptionParagraphs = (offer.description || '').split('. ').filter((p) => p.length > 0);
+  const images = offer.images && offer.images.length > 0 ? offer.images : (offer.previewImage ? [offer.previewImage] : []);
+  const goods = offer.goods || [];
+  const host = offer.host || { name: '', avatarUrl: '', isPro: false };
   
   const nearbyOffers = offers
     .filter((o) => o.id !== offer.id && o.city.name === offer.city.name)
@@ -62,7 +98,7 @@ function OfferPage({ offers }: OfferPageProps): JSX.Element {
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              {offer.images.map((image) => (
+              {images.map((image) => (
                 <div key={image} className="offer__image-wrapper">
                   <img className="offer__image" src={image} alt="Photo studio" />
                 </div>
@@ -112,7 +148,7 @@ function OfferPage({ offers }: OfferPageProps): JSX.Element {
               <div className="offer__inside">
                 <h2 className="offer__inside-title">What&apos;s inside</h2>
                 <ul className="offer__inside-list">
-                  {offer.goods.map((good) => (
+                  {goods.map((good) => (
                     <li key={good} className="offer__inside-item">
                       {good}
                     </li>
@@ -122,11 +158,11 @@ function OfferPage({ offers }: OfferPageProps): JSX.Element {
               <div className="offer__host">
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
-                  <div className={`offer__avatar-wrapper ${offer.host.isPro ? 'offer__avatar-wrapper--pro' : ''} user__avatar-wrapper`}>
-                    <img className="offer__avatar user__avatar" src={offer.host.avatarUrl} width="74" height="74" alt="Host avatar" />
+                  <div className={`offer__avatar-wrapper ${host.isPro ? 'offer__avatar-wrapper--pro' : ''} user__avatar-wrapper`}>
+                    <img className="offer__avatar user__avatar" src={host.avatarUrl} width="74" height="74" alt="Host avatar" />
                   </div>
-                  <span className="offer__user-name">{offer.host.name}</span>
-                  {offer.host.isPro && (
+                  <span className="offer__user-name">{host.name}</span>
+                  {host.isPro && (
                     <span className="offer__user-status">Pro</span>
                   )}
                 </div>

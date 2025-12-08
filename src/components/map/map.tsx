@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Offer } from '../../mocks/offers';
+import { Offer } from '../../types/offer';
 
 type MapProps = {
   offers: Offer[];

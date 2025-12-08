@@ -1,4 +1,4 @@
-import { Offer } from '../mocks/offers';
+import { Offer } from '../types/offer';
 import { SortOption } from '../components/sorting-options/sorting-options';
 
 export const sortOffers = (offers: Offer[], sortOption: SortOption): Offer[] => {
