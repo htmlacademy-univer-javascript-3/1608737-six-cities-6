@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import classNames from 'classnames';
 import { Offer } from '../../mocks/offers';
 
 type OfferCardProps = {
@@ -27,9 +28,19 @@ function OfferCard({
           <span>Premium</span>
         </div>
       )}
-      <div className={`${cardClassName === 'favorites__card' ? 'favorites__image-wrapper' : 'cities__image-wrapper'} place-card__image-wrapper`}>
+      <div className={classNames('place-card__image-wrapper', {
+        'favorites__image-wrapper': cardClassName === 'favorites__card',
+        'near-places__image-wrapper': cardClassName === 'near-places__card',
+        'cities__image-wrapper': cardClassName === 'cities__card',
+      })}>
         <Link to={`/offer/${offer.id}`}>
-          <img className="place-card__image" src={offer.previewImage} width={cardClassName === 'favorites__card' ? '150' : '260'} height={cardClassName === 'favorites__card' ? '110' : '200'} alt="Place image" />
+          <img 
+            className="place-card__image" 
+            src={offer.previewImage} 
+            width={cardClassName === 'favorites__card' ? '150' : '260'} 
+            height={cardClassName === 'favorites__card' ? '110' : '200'} 
+            alt="Place image" 
+          />
         </Link>
       </div>
       <div className="place-card__info">

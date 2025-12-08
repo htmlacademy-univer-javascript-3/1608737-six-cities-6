@@ -6,11 +6,15 @@ type OffersListProps = {
   onCardHover?: (id: string) => void;
   onCardLeave?: () => void;
   cardClassName?: string;
+  listClassName?: string;
 };
 
-function OffersList({ offers, onCardHover, onCardLeave, cardClassName }: OffersListProps): JSX.Element {
+function OffersList({ offers, onCardHover, onCardLeave, cardClassName, listClassName }: OffersListProps): JSX.Element {
+  const defaultListClassName = 'cities__places-list places__list tabs__content';
+  const finalListClassName = listClassName || defaultListClassName;
+
   return (
-    <div className="cities__places-list places__list tabs__content">
+    <div className={finalListClassName}>
       {offers.map((offer) => (
         <OfferCard
           key={offer.id}
