@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { Offer } from '../../mocks/offers';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../store';
+import { changeCity } from '../../store/action';
 import OffersList from '../../components/offers-list/offers-list';
 import Map from '../../components/map/map';
+import CitiesList from '../../components/cities-list/cities-list';
 
-type MainPageProps = {
-  offersCount: number;
-  offers: Offer[];
-};
-
-function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
+function MainPage(): JSX.Element {
+  const dispatch = useDispatch();
+  const currentCity = useSelector((state: RootState) => state.city);
+  const allOffers = useSelector((state: RootState) => state.offers);
+  
+  const filteredOffers = allOffers.filter((offer) => offer.city.name === currentCity);
+  
   const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
 
   const handleCardHover = (id: string) => {
@@ -19,14 +23,25 @@ function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
     setActiveOfferId(null);
   };
 
-  const city = offers.length > 0 ? offers[0].city : {
-    name: 'Amsterdam',
-    location: {
-      latitude: 52.37454,
-      longitude: 4.897976,
-      zoom: 13,
-    },
+  const handleCityChange = (city: string) => {
+    dispatch(changeCity(city));
   };
+
+  const cityCoordinates: Record<string, { latitude: number; longitude: number; zoom: number }> = {
+    'Paris': { latitude: 48.85661, longitude: 2.35222, zoom: 13 },
+    'Cologne': { latitude: 50.93753, longitude: 6.96028, zoom: 13 },
+    'Brussels': { latitude: 50.85045, longitude: 4.34878, zoom: 13 },
+    'Amsterdam': { latitude: 52.37454, longitude: 4.897976, zoom: 13 },
+    'Hamburg': { latitude: 53.55108, longitude: 9.99368, zoom: 13 },
+    'Dusseldorf': { latitude: 51.22774, longitude: 6.77346, zoom: 13 },
+  };
+
+  const city = filteredOffers.length > 0 
+    ? filteredOffers[0].city 
+    : {
+        name: currentCity,
+        location: cityCoordinates[currentCity] || cityCoordinates['Paris'],
+      };
 
   return (
     <div className="page page--gray page--main">
@@ -61,47 +76,12 @@ function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
 
       <main className="page__main page__main--index">
         <h1 className="visually-hidden">Cities</h1>
-        <div className="tabs">
-          <section className="locations container">
-            <ul className="locations__list tabs__list">
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Paris</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Cologne</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Brussels</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item tabs__item--active">
-                  <span>Amsterdam</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Hamburg</span>
-                </a>
-              </li>
-              <li className="locations__item">
-                <a className="locations__item-link tabs__item" href="#">
-                  <span>Dusseldorf</span>
-                </a>
-              </li>
-            </ul>
-          </section>
-        </div>
+        <CitiesList currentCity={currentCity} onCityChange={handleCityChange} />
         <div className="cities">
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{offersCount} places to stay in Amsterdam</b>
+              <b className="places__found">{filteredOffers.length} places to stay in {currentCity}</b>
               <form className="places__sorting" action="#" method="get">
                 <span className="places__sorting-caption">Sort by</span>
                 <span className="places__sorting-type" tabIndex={0}>
@@ -118,14 +98,14 @@ function MainPage({ offersCount, offers }: MainPageProps): JSX.Element {
                 </ul>
               </form>
               <OffersList
-                offers={offers}
+                offers={filteredOffers}
                 onCardHover={handleCardHover}
                 onCardLeave={handleCardLeave}
               />
             </section>
             <div className="cities__right-section">
               <section className="cities__map map">
-                <Map offers={offers} city={city} activeOfferId={activeOfferId} />
+                <Map offers={filteredOffers} city={city} activeOfferId={activeOfferId} />
               </section>
             </div>
           </div>

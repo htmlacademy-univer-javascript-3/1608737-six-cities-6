@@ -8,16 +8,15 @@ import PrivateRoute from '../components/private-route/private-route';
 import { Offer } from '../mocks/offers';
 
 type AppProps = {
-  offersCount: number;
   offers: Offer[];
 };
 
-function App({ offersCount, offers }: AppProps): JSX.Element {
+function App({ offers }: AppProps): JSX.Element {
   const isAuthorized = false;
 
   return (
     <Routes>
-      <Route path="/" element={<MainPage offersCount={offersCount} offers={offers} />} />
+      <Route path="/" element={<MainPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/favorites"
