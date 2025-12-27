@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { Offer } from '../../types/offer';
@@ -71,6 +72,6 @@ function OfferCard({
   );
 }
 
-export default OfferCard;
+export default React.memo(OfferCard);
 
 

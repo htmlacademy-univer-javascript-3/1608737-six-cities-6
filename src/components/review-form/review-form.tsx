@@ -1,7 +1,8 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store';
+import { AppDispatch } from '../../store';
 import { postReview } from '../../store/action';
+import { selectAuthorizationStatus } from '../../store/selectors';
 
 type ReviewFormProps = {
   offerId: string;
@@ -9,7 +10,7 @@ type ReviewFormProps = {
 
 function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
-  const authorizationStatus = useSelector((state: RootState) => state.authorizationStatus);
+  const authorizationStatus = useSelector(selectAuthorizationStatus);
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

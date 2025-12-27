@@ -1,7 +1,7 @@
 import { AxiosInstance } from 'axios';
 import { AppDispatch, RootState } from './index';
 import { Offer } from '../types/offer';
-import { AuthorizationStatus } from './reducer';
+import { AuthorizationStatus } from './user-reducer';
 import { User, AuthInfo } from '../types/user';
 import { Review, ReviewPost } from '../types/review';
 
@@ -87,20 +87,12 @@ export const fetchOfferById = (id: string) => async (dispatch: AppDispatch, _get
 
 export const postReview = (offerId: string, review: ReviewPost) => async (dispatch: AppDispatch, _getState: () => RootState, api: AxiosInstance) => {
   try {
-    console.log('Posting review:', { offerId, review });
     const { data } = await api.post<Review>(`/comments/${offerId}`, review);
-    console.log('Review posted successfully:', data);
     const state = _getState();
-    const currentReviews = state.reviews || [];
+    const currentReviews = state.offer.reviews || [];
     dispatch(setReviews([data, ...currentReviews]));
     return data;
   } catch (error: any) {
-    console.error('Failed to post review:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      response: error?.response?.data,
-      status: error?.response?.status,
-    });
     throw error;
   }
 };
