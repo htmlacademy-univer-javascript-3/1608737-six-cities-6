@@ -7,8 +7,6 @@ import NotFoundPage from '../pages/not-found-page/not-found-page';
 import PrivateRoute from '../components/private-route/private-route';
 
 function App(): JSX.Element {
-  const isAuthorized = false;
-
   return (
     <Routes>
       <Route path="/" element={<MainPage />} />
@@ -16,7 +14,7 @@ function App(): JSX.Element {
       <Route
         path="/favorites"
         element={
-          <PrivateRoute isAuthorized={isAuthorized}>
+          <PrivateRoute>
             <FavoritesPage />
           </PrivateRoute>
         }

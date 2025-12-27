@@ -2,7 +2,7 @@ import { useParams, Navigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
-import { fetchOfferById } from '../../store/action';
+import { fetchOfferById, logout } from '../../store/action';
 import ReviewForm from '../../components/review-form/review-form';
 import ReviewsList from '../../components/reviews-list/reviews-list';
 import Map from '../../components/map/map';
@@ -16,7 +16,13 @@ function OfferPage(): JSX.Element {
   const currentOffer = useSelector((state: RootState) => state.currentOffer);
   const isLoading = useSelector((state: RootState) => state.isLoading);
   const isCurrentOfferLoading = useSelector((state: RootState) => state.isCurrentOfferLoading);
+  const authorizationStatus = useSelector((state: RootState) => state.authorizationStatus);
+  const user = useSelector((state: RootState) => state.user);
   const { id } = useParams<{ id: string }>();
+  
+  const handleLogout = () => {
+    dispatch(logout());
+  };
   
   useEffect(() => {
     if (id) {
@@ -35,6 +41,33 @@ function OfferPage(): JSX.Element {
                   <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
                 </Link>
               </div>
+              <nav className="header__nav">
+                <ul className="header__nav-list">
+                  {authorizationStatus === 'AUTH' && user ? (
+                    <>
+                      <li className="header__nav-item user">
+                        <Link className="header__nav-link header__nav-link--profile" to="/favorites">
+                          <div className="header__avatar-wrapper user__avatar-wrapper">
+                            <img src={user.avatarUrl} alt={user.name} style={{ borderRadius: '50%' }} />
+                          </div>
+                          <span className="header__user-name user__name">{user.email}</span>
+                        </Link>
+                      </li>
+                      <li className="header__nav-item">
+                        <Link className="header__nav-link" to="/" onClick={handleLogout}>
+                          <span className="header__signout">Sign out</span>
+                        </Link>
+                      </li>
+                    </>
+                  ) : (
+                    <li className="header__nav-item">
+                      <Link className="header__nav-link" to="/login">
+                        <span className="header__login">Sign in</span>
+                      </Link>
+                    </li>
+                  )}
+                </ul>
+              </nav>
             </div>
           </div>
         </header>
@@ -75,19 +108,29 @@ function OfferPage(): JSX.Element {
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="#">
-                    <div className="header__avatar-wrapper user__avatar-wrapper">
-                    </div>
-                    <span className="header__user-name user__name">Oliver.conner@gmail.com</span>
-                    <span className="header__favorite-count">3</span>
-                  </a>
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
+                {authorizationStatus === 'AUTH' && user ? (
+                  <>
+                    <li className="header__nav-item user">
+                      <Link className="header__nav-link header__nav-link--profile" to="/favorites">
+                        <div className="header__avatar-wrapper user__avatar-wrapper">
+                          <img src={user.avatarUrl} alt={user.name} style={{ borderRadius: '50%' }} />
+                        </div>
+                        <span className="header__user-name user__name">{user.email}</span>
+                      </Link>
+                    </li>
+                    <li className="header__nav-item">
+                      <Link className="header__nav-link" to="/" onClick={handleLogout}>
+                        <span className="header__signout">Sign out</span>
+                      </Link>
+                    </li>
+                  </>
+                ) : (
+                  <li className="header__nav-item">
+                    <Link className="header__nav-link" to="/login">
+                      <span className="header__login">Sign in</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>

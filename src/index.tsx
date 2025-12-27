@@ -4,8 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import App from './app/app';
 import { store } from './store';
-import { fetchOffers } from './store/action';
+import { fetchOffers, checkAuth } from './store/action';
 
+store.dispatch(checkAuth());
 store.dispatch(fetchOffers());
 
 const root = ReactDOM.createRoot(
