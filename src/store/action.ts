@@ -3,6 +3,7 @@ import { AppDispatch, RootState } from './index';
 import { Offer } from '../types/offer';
 import { AuthorizationStatus } from './reducer';
 import { User, AuthInfo } from '../types/user';
+import { Review, ReviewPost } from '../types/review';
 
 export const changeCity = (city: string) => ({
   type: 'city/change' as const,
@@ -41,16 +42,66 @@ export const setCurrentOfferLoadingStatus = (isLoading: boolean) => ({
   payload: isLoading,
 });
 
+export const setNearbyOffers = (offers: Offer[]) => ({
+  type: 'offer/setNearby' as const,
+  payload: offers,
+});
+
+export const setReviews = (reviews: Review[]) => ({
+  type: 'offer/setReviews' as const,
+  payload: reviews,
+});
+
+export const setOfferNotFound = (notFound: boolean) => ({
+  type: 'offer/setNotFound' as const,
+  payload: notFound,
+});
+
 export const fetchOfferById = (id: string) => async (dispatch: AppDispatch, _getState: () => RootState, api: AxiosInstance) => {
   dispatch(setCurrentOfferLoadingStatus(true));
+  dispatch(setOfferNotFound(false));
   try {
-    const { data } = await api.get<Offer>(`/offers/${id}`);
-    dispatch(setCurrentOffer(data));
-  } catch (error) {
+    const [offerResponse, nearbyResponse, reviewsResponse] = await Promise.all([
+      api.get<Offer>(`/offers/${id}`),
+      api.get<Offer[]>(`/offers/${id}/nearby`),
+      api.get<Review[]>(`/comments/${id}`),
+    ]);
+    
+    dispatch(setCurrentOffer(offerResponse.data));
+    dispatch(setNearbyOffers(nearbyResponse.data));
+    dispatch(setReviews(reviewsResponse.data));
+    dispatch(setOfferNotFound(false));
+  } catch (error: any) {
     console.error('Failed to fetch offer:', error);
-    dispatch(setCurrentOffer(null));
+    if (error.response?.status === 404) {
+      dispatch(setCurrentOffer(null));
+      dispatch(setOfferNotFound(true));
+    } else {
+      dispatch(setCurrentOffer(null));
+      dispatch(setOfferNotFound(false));
+    }
   } finally {
     dispatch(setCurrentOfferLoadingStatus(false));
+  }
+};
+
+export const postReview = (offerId: string, review: ReviewPost) => async (dispatch: AppDispatch, _getState: () => RootState, api: AxiosInstance) => {
+  try {
+    console.log('Posting review:', { offerId, review });
+    const { data } = await api.post<Review>(`/comments/${offerId}`, review);
+    console.log('Review posted successfully:', data);
+    const state = _getState();
+    const currentReviews = state.reviews || [];
+    dispatch(setReviews([data, ...currentReviews]));
+    return data;
+  } catch (error: any) {
+    console.error('Failed to post review:', error);
+    console.error('Error details:', {
+      message: error?.message,
+      response: error?.response?.data,
+      status: error?.response?.status,
+    });
+    throw error;
   }
 };
 

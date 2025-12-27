@@ -1,4 +1,4 @@
-import { Review as ReviewType } from '../../mocks/reviews';
+import { Review as ReviewType } from '../../types/review';
 import { formatDate } from '../../utils/date';
 
 type ReviewProps = {
