@@ -8,16 +8,16 @@ import ReviewsList from '../../components/reviews-list/reviews-list';
 import Map from '../../components/map/map';
 import OffersList from '../../components/offers-list/offers-list';
 import Spinner from '../../components/spinner/spinner';
-import { reviews } from '../../mocks/reviews';
 
 function OfferPage(): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
-  const offers = useSelector((state: RootState) => state.offers);
   const currentOffer = useSelector((state: RootState) => state.currentOffer);
-  const isLoading = useSelector((state: RootState) => state.isLoading);
   const isCurrentOfferLoading = useSelector((state: RootState) => state.isCurrentOfferLoading);
+  const offerNotFound = useSelector((state: RootState) => state.offerNotFound);
   const authorizationStatus = useSelector((state: RootState) => state.authorizationStatus);
   const user = useSelector((state: RootState) => state.user);
+  const nearbyOffers = useSelector((state: RootState) => state.nearbyOffers);
+  const reviews = useSelector((state: RootState) => state.reviews);
   const { id } = useParams<{ id: string }>();
   
   const handleLogout = () => {
@@ -28,9 +28,13 @@ function OfferPage(): JSX.Element {
     if (id) {
       dispatch(fetchOfferById(id));
     }
+    
+    return () => {
+      // Cleanup: reset state when component unmounts or id changes
+    };
   }, [id, dispatch]);
   
-  if (isLoading || isCurrentOfferLoading) {
+  if (isCurrentOfferLoading) {
     return (
       <div className="page">
         <header className="header">
@@ -78,21 +82,21 @@ function OfferPage(): JSX.Element {
     );
   }
   
-  const offer = currentOffer || offers.find((o) => o.id === id);
-
-  if (!offer) {
-    return <Navigate to="/" />;
+  if (!isCurrentOfferLoading && offerNotFound) {
+    return <Navigate to="/404" replace />;
   }
+
+  if (!currentOffer) {
+    return null;
+  }
+
+  const offer = currentOffer;
 
   const ratingPercent = Math.round((offer.rating || 0) * 20);
   const descriptionParagraphs = (offer.description || '').split('. ').filter((p) => p.length > 0);
   const images = offer.images && offer.images.length > 0 ? offer.images : (offer.previewImage ? [offer.previewImage] : []);
   const goods = offer.goods || [];
   const host = offer.host || { name: '', avatarUrl: '', isPro: false };
-  
-  const nearbyOffers = offers
-    .filter((o) => o.id !== offer.id && o.city.name === offer.city.name)
-    .slice(0, 3);
   
   const mapOffers = [offer, ...nearbyOffers];
 
@@ -219,7 +223,7 @@ function OfferPage(): JSX.Element {
               </div>
               <section className="offer__reviews reviews">
                 <ReviewsList reviews={reviews} />
-                <ReviewForm />
+                <ReviewForm offerId={offer.id} />
               </section>
             </div>
           </div>

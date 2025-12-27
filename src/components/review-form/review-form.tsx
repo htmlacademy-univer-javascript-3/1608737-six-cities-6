@@ -1,26 +1,71 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../store';
+import { postReview } from '../../store/action';
 
-function ReviewForm(): JSX.Element {
+type ReviewFormProps = {
+  offerId: string;
+};
+
+function ReviewForm({ offerId }: ReviewFormProps): JSX.Element {
+  const dispatch = useDispatch<AppDispatch>();
+  const authorizationStatus = useSelector((state: RootState) => state.authorizationStatus);
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (authorizationStatus !== 'AUTH') {
+    return <></>;
+  }
 
   const handleRatingChange = (e: ChangeEvent<HTMLInputElement>) => {
     setRating(Number(e.target.value));
+    setError(null);
   };
 
   const handleCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
+    setError(null);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Form submission logic will be implemented later
+    setError(null);
+
+    if (rating === 0) {
+      setError('Please select a rating');
+      return;
+    }
+
+    if (!comment.trim()) {
+      setError('Please enter a comment');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await dispatch(postReview(offerId, { rating, comment }) as any);
+      setRating(0);
+      setComment('');
+    } catch (err: any) {
+      console.error('Review submission error:', err);
+      const errorMessage = err?.response?.data?.message || err?.message || err?.toString() || 'Failed to submit review. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const isSubmitDisabled = rating === 0 || comment.length < 50;
+  const isSubmitDisabled = rating === 0 || !comment.trim() || isSubmitting;
 
   return (
     <form className="reviews__form form" action="#" method="post" onSubmit={handleSubmit}>
+      {error && (
+        <div style={{ color: 'red', marginBottom: '10px' }}>
+          {error}
+        </div>
+      )}
       <label className="reviews__label form__label" htmlFor="review">Your review</label>
       <div className="reviews__rating-form form__rating">
         {[5, 4, 3, 2, 1].map((star) => (
@@ -33,6 +78,7 @@ function ReviewForm(): JSX.Element {
               type="radio"
               checked={rating === star}
               onChange={handleRatingChange}
+              disabled={isSubmitting}
             />
             <label
               htmlFor={`${star}-stars`}
@@ -61,13 +107,18 @@ function ReviewForm(): JSX.Element {
         placeholder="Tell how was your stay, what you like and what can be improved"
         value={comment}
         onChange={handleCommentChange}
+        disabled={isSubmitting}
       />
       <div className="reviews__button-wrapper">
         <p className="reviews__help">
-          To submit review please make sure to set <span className="reviews__star">rating</span> and describe your stay with at least <b className="reviews__text-amount">50 characters</b>.
+          To submit review please make sure to set <span className="reviews__star">rating</span> and describe your stay.
         </p>
-        <button className="reviews__submit form__submit button" type="submit" disabled={isSubmitDisabled}>
-          Submit
+        <button 
+          className="reviews__submit form__submit button" 
+          type="submit" 
+          disabled={isSubmitDisabled}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       </div>
     </form>
