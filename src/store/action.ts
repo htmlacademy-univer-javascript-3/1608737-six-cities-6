@@ -1,6 +1,8 @@
 import { AxiosInstance } from 'axios';
 import { AppDispatch, RootState } from './index';
 import { Offer } from '../types/offer';
+import { AuthorizationStatus } from './reducer';
+import { User, AuthInfo } from '../types/user';
 
 export const changeCity = (city: string) => ({
   type: 'city/change' as const,
@@ -50,5 +52,57 @@ export const fetchOfferById = (id: string) => async (dispatch: AppDispatch, _get
   } finally {
     dispatch(setCurrentOfferLoadingStatus(false));
   }
+};
+
+export const requireAuthorization = (status: AuthorizationStatus) => ({
+  type: 'user/requireAuthorization' as const,
+  payload: status,
+});
+
+export const setUser = (user: User | null) => ({
+  type: 'user/setUser' as const,
+  payload: user,
+});
+
+const TOKEN_KEY = 'six-cities-token';
+
+export const checkAuth = () => async (dispatch: AppDispatch, _getState: () => RootState, api: AxiosInstance) => {
+  try {
+    const { data } = await api.get<AuthInfo>('/login');
+    localStorage.setItem(TOKEN_KEY, data.token);
+    dispatch(requireAuthorization('AUTH'));
+    dispatch(setUser({
+      email: data.email,
+      name: data.name,
+      avatarUrl: data.avatarUrl,
+      isPro: data.isPro,
+    }));
+  } catch (error) {
+    localStorage.removeItem(TOKEN_KEY);
+    dispatch(requireAuthorization('NO_AUTH'));
+  }
+};
+
+export const login = (email: string, password: string) => async (dispatch: AppDispatch, _getState: () => RootState, api: AxiosInstance) => {
+  try {
+    const { data } = await api.post<AuthInfo>('/login', { email, password });
+    localStorage.setItem(TOKEN_KEY, data.token);
+    dispatch(requireAuthorization('AUTH'));
+    dispatch(setUser({
+      email: data.email,
+      name: data.name,
+      avatarUrl: data.avatarUrl,
+      isPro: data.isPro,
+    }));
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const logout = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  return {
+    type: 'user/logout' as const,
+  };
 };
 

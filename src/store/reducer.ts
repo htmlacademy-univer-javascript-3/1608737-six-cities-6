@@ -1,5 +1,8 @@
 import { Offer } from '../types/offer';
-import { changeCity, fillOffers, setOffersLoadingStatus, setCurrentOffer, setCurrentOfferLoadingStatus } from './action';
+import { User } from '../types/user';
+import { changeCity, fillOffers, setOffersLoadingStatus, setCurrentOffer, setCurrentOfferLoadingStatus, requireAuthorization, setUser, logout } from './action';
+
+export type AuthorizationStatus = 'UNKNOWN' | 'AUTH' | 'NO_AUTH';
 
 export type State = {
   city: string;
@@ -7,6 +10,8 @@ export type State = {
   isLoading: boolean;
   currentOffer: Offer | null;
   isCurrentOfferLoading: boolean;
+  authorizationStatus: AuthorizationStatus;
+  user: User | null;
 };
 
 const initialState: State = {
@@ -15,9 +20,11 @@ const initialState: State = {
   isLoading: false,
   currentOffer: null,
   isCurrentOfferLoading: false,
+  authorizationStatus: 'UNKNOWN',
+  user: null,
 };
 
-type Action = ReturnType<typeof changeCity> | ReturnType<typeof fillOffers> | ReturnType<typeof setOffersLoadingStatus> | ReturnType<typeof setCurrentOffer> | ReturnType<typeof setCurrentOfferLoadingStatus>;
+type Action = ReturnType<typeof changeCity> | ReturnType<typeof fillOffers> | ReturnType<typeof setOffersLoadingStatus> | ReturnType<typeof setCurrentOffer> | ReturnType<typeof setCurrentOfferLoadingStatus> | ReturnType<typeof requireAuthorization> | ReturnType<typeof setUser> | ReturnType<typeof logout>;
 
 export const reducer = (state: State = initialState, action: Action): State => {
   switch (action.type) {
@@ -45,6 +52,22 @@ export const reducer = (state: State = initialState, action: Action): State => {
       return {
         ...state,
         isCurrentOfferLoading: action.payload,
+      };
+    case 'user/requireAuthorization':
+      return {
+        ...state,
+        authorizationStatus: action.payload,
+      };
+    case 'user/setUser':
+      return {
+        ...state,
+        user: action.payload,
+      };
+    case 'user/logout':
+      return {
+        ...state,
+        authorizationStatus: 'NO_AUTH',
+        user: null,
       };
     default:
       return state;
