@@ -1,3 +1,4 @@
+import React from 'react';
 import { Review as ReviewType } from '../../types/review';
 import { formatDate } from '../../utils/date';
 
@@ -36,5 +37,5 @@ function Review({ review }: ReviewProps): JSX.Element {
   );
 }
 
-export default Review;
+export default React.memo(Review);
 

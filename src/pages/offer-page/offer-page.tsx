@@ -1,8 +1,17 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store';
+import { AppDispatch } from '../../store';
 import { fetchOfferById, logout } from '../../store/action';
+import {
+  selectCurrentOffer,
+  selectIsCurrentOfferLoading,
+  selectOfferNotFound,
+  selectAuthorizationStatus,
+  selectUser,
+  selectNearbyOffers,
+  selectReviews,
+} from '../../store/selectors';
 import ReviewForm from '../../components/review-form/review-form';
 import ReviewsList from '../../components/reviews-list/reviews-list';
 import Map from '../../components/map/map';
@@ -11,13 +20,13 @@ import Spinner from '../../components/spinner/spinner';
 
 function OfferPage(): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
-  const currentOffer = useSelector((state: RootState) => state.currentOffer);
-  const isCurrentOfferLoading = useSelector((state: RootState) => state.isCurrentOfferLoading);
-  const offerNotFound = useSelector((state: RootState) => state.offerNotFound);
-  const authorizationStatus = useSelector((state: RootState) => state.authorizationStatus);
-  const user = useSelector((state: RootState) => state.user);
-  const nearbyOffers = useSelector((state: RootState) => state.nearbyOffers);
-  const reviews = useSelector((state: RootState) => state.reviews);
+  const currentOffer = useSelector(selectCurrentOffer);
+  const isCurrentOfferLoading = useSelector(selectIsCurrentOfferLoading);
+  const offerNotFound = useSelector(selectOfferNotFound);
+  const authorizationStatus = useSelector(selectAuthorizationStatus);
+  const user = useSelector(selectUser);
+  const nearbyOffers = useSelector(selectNearbyOffers);
+  const reviews = useSelector(selectReviews);
   const { id } = useParams<{ id: string }>();
   
   const handleLogout = () => {
@@ -87,7 +96,7 @@ function OfferPage(): JSX.Element {
   }
 
   if (!currentOffer) {
-    return null;
+    return <div />;
   }
 
   const offer = currentOffer;

@@ -1,32 +1,67 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { RootState } from '../../store';
 import { changeCity, logout } from '../../store/action';
+import {
+  selectCity,
+  selectIsOffersLoading,
+  selectAuthorizationStatus,
+  selectUser,
+  selectSortedOffers,
+  selectFilteredOffers,
+} from '../../store/selectors';
 import OffersList from '../../components/offers-list/offers-list';
 import Map from '../../components/map/map';
 import CitiesList from '../../components/cities-list/cities-list';
 import SortingOptions, { SortOption } from '../../components/sorting-options/sorting-options';
 import Spinner from '../../components/spinner/spinner';
-import { sortOffers } from '../../utils/sorting';
 
 function MainPage(): JSX.Element {
   const dispatch = useDispatch();
-  const currentCity = useSelector((state: RootState) => state.city);
-  const allOffers = useSelector((state: RootState) => state.offers);
-  const isLoading = useSelector((state: RootState) => state.isLoading);
-  const authorizationStatus = useSelector((state: RootState) => state.authorizationStatus);
-  const user = useSelector((state: RootState) => state.user);
+  const currentCity = useSelector(selectCity);
+  const isLoading = useSelector(selectIsOffersLoading);
+  const authorizationStatus = useSelector(selectAuthorizationStatus);
+  const user = useSelector(selectUser);
   
   const [activeOfferId, setActiveOfferId] = useState<string | null>(null);
   const [currentSort, setCurrentSort] = useState<SortOption>('Popular');
   
-  const handleLogout = () => {
-    dispatch(logout());
-  };
+  const filteredOffers = useSelector((state) => selectFilteredOffers(state));
+  const sortedOffers = useSelector((state) => selectSortedOffers(state, currentSort));
   
-  const filteredOffers = allOffers.filter((offer) => offer.city.name === currentCity);
-  const sortedOffers = sortOffers(filteredOffers, currentSort);
+  const handleLogout = useCallback(() => {
+    dispatch(logout());
+  }, [dispatch]);
+  
+  const handleCardHover = useCallback((id: string) => {
+    setActiveOfferId(id);
+  }, []);
+  
+  const handleCardLeave = useCallback(() => {
+    setActiveOfferId(null);
+  }, []);
+  
+  const handleCityChange = useCallback((city: string) => {
+    dispatch(changeCity(city));
+  }, [dispatch]);
+  
+  const cityCoordinates: Record<string, { latitude: number; longitude: number; zoom: number }> = useMemo(() => ({
+    'Paris': { latitude: 48.85661, longitude: 2.35222, zoom: 13 },
+    'Cologne': { latitude: 50.93753, longitude: 6.96028, zoom: 13 },
+    'Brussels': { latitude: 50.85045, longitude: 4.34878, zoom: 13 },
+    'Amsterdam': { latitude: 52.37454, longitude: 4.897976, zoom: 13 },
+    'Hamburg': { latitude: 53.55108, longitude: 9.99368, zoom: 13 },
+    'Dusseldorf': { latitude: 51.22774, longitude: 6.77346, zoom: 13 },
+  }), []);
+  
+  const city = useMemo(() => {
+    return filteredOffers.length > 0 
+      ? filteredOffers[0].city 
+      : {
+          name: currentCity,
+          location: cityCoordinates[currentCity] || cityCoordinates['Paris'],
+        };
+  }, [filteredOffers, currentCity, cityCoordinates]);
   
   if (isLoading) {
     return (
@@ -35,9 +70,9 @@ function MainPage(): JSX.Element {
           <div className="container">
             <div className="header__wrapper">
               <div className="header__left">
-                <a className="header__logo-link header__logo-link--active" href="/">
+                <Link className="header__logo-link header__logo-link--active" to="/">
                   <img className="header__logo" src="img/logo.svg" alt="6 cities logo" width="81" height="41" />
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -48,34 +83,6 @@ function MainPage(): JSX.Element {
       </div>
     );
   }
-
-  const handleCardHover = (id: string) => {
-    setActiveOfferId(id);
-  };
-
-  const handleCardLeave = () => {
-    setActiveOfferId(null);
-  };
-
-  const handleCityChange = (city: string) => {
-    dispatch(changeCity(city));
-  };
-
-  const cityCoordinates: Record<string, { latitude: number; longitude: number; zoom: number }> = {
-    'Paris': { latitude: 48.85661, longitude: 2.35222, zoom: 13 },
-    'Cologne': { latitude: 50.93753, longitude: 6.96028, zoom: 13 },
-    'Brussels': { latitude: 50.85045, longitude: 4.34878, zoom: 13 },
-    'Amsterdam': { latitude: 52.37454, longitude: 4.897976, zoom: 13 },
-    'Hamburg': { latitude: 53.55108, longitude: 9.99368, zoom: 13 },
-    'Dusseldorf': { latitude: 51.22774, longitude: 6.77346, zoom: 13 },
-  };
-
-  const city = filteredOffers.length > 0 
-    ? filteredOffers[0].city 
-    : {
-        name: currentCity,
-        location: cityCoordinates[currentCity] || cityCoordinates['Paris'],
-      };
 
   return (
     <div className="page page--gray page--main">
