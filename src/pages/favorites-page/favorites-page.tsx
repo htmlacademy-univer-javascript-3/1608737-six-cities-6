@@ -1,12 +1,11 @@
-import { Offer } from '../../mocks/offers';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import OffersList from '../../components/offers-list/offers-list';
 
-type FavoritesPageProps = {
-  offers: Offer[];
-};
-
-function FavoritesPage({ offers }: FavoritesPageProps): JSX.Element {
-  const groupedOffersByCity = offers.reduce((acc, offer) => {
+function FavoritesPage(): JSX.Element {
+  const offers = useSelector((state: RootState) => state.offers);
+  const favoriteOffers = offers.filter((offer) => offer.isFavorite);
+  const groupedOffersByCity = favoriteOffers.reduce((acc, offer) => {
     const cityName = offer.city.name;
     if (!acc[cityName]) {
       acc[cityName] = [];
@@ -15,7 +14,7 @@ function FavoritesPage({ offers }: FavoritesPageProps): JSX.Element {
     return acc;
   }, {} as Record<string, Offer[]>);
 
-  if (offers.length === 0) {
+  if (favoriteOffers.length === 0) {
     return (
       <div className="page">
         <header className="header">
@@ -84,7 +83,7 @@ function FavoritesPage({ offers }: FavoritesPageProps): JSX.Element {
                     <div className="header__avatar-wrapper user__avatar-wrapper">
                     </div>
                     <span className="header__user-name user__name">Oliver.conner@gmail.com</span>
-                    <span className="header__favorite-count">{offers.length}</span>
+                    <span className="header__favorite-count">{favoriteOffers.length}</span>
                   </a>
                 </li>
                 <li className="header__nav-item">

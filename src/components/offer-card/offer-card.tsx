@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import { Offer } from '../../mocks/offers';
+import { Offer } from '../../types/offer';
 
 type OfferCardProps = {
   offer: Offer;
